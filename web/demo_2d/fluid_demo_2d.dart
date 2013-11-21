@@ -10,11 +10,17 @@ const _dividend = _deltaCount * 1000;
 List<double> deltas = new List.generate(_deltaCount, (_) => 0.0, growable: false);
 int frame = 0;
 double lastTime = 0.0;
+int addX, addY;
 
 void main() {
   CanvasElement canvas = querySelector("#fluid_canvas");
   context = canvas.context2D;
   context.textBaseline = 'top';
+  canvas.onClick.listen((data) {
+    var offset = (data.currentTarget as Element).offset;
+    addX = data.client.x - offset.left;
+    addY = data.client.y - offset.top;
+  });
 
   // Create the fluid simulator
   simulator = new FluidSimulator();
@@ -52,6 +58,19 @@ void draw(num elapsedTime) {
 
   context.fillStyle = 'black';
   context.fillText('FPS: ${fps.toStringAsFixed(2)}', 5, 5);
+  context.fillText('Particles: ${simulator.particles.length}', 5, 15);
+  context.fillText('Actives: ${simulator.active.length}', 5, 25);
+  context.fillText('Grid: ${simulator.grid.length}', 5, 35);
+
+  if (addX != null && addY != null) {
+    for (int i = 0; i < 10; i++) {
+      for (int j = 0; j < 10; j++) {
+        simulator.addParticle(addX/4 + i * 2 - 10, addY/4 + j * 2 - 10, 0, -5);
+      }
+    }
+    addX = null;
+    addY = null;
+  }
 
   window.animationFrame.then(draw);
 }
